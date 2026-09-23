@@ -7,8 +7,8 @@
 
 ## 🔗 Live Deployment & Repository Links
 
-- **Live URL**: *(Deploy to Vercel/Netlify and paste link here)*
-- **GitHub Repository**: *(Paste your repository link here)*
+- **Live Link**: [https://asmnt6.vercel.app](https://asmnt6.vercel.app)
+- **GitHub Repository Link**: [https://github.com/TalhaTamim45/B14-A6-Fit-Log](https://github.com/TalhaTamim45/B14-A6-Fit-Log)
 
 ---
 
@@ -39,22 +39,21 @@
 
 3. **Real-time Live Metrics Dashboard (`/my-plan`)**:
    - Dynamically calculates and updates three live training metrics:
-     - **Exercises Planned** (with 5-lift cap progress)
+     - **Exercises Planned** (starts at 0 and increments with each lift)
      - **Total Training Duration** (in minutes)
      - **Total Estimated Calories Burned** (in kcal)
    - Values start at 0 and update live as workouts are added, marked as done, or removed.
 
 4. **Multi-Tab Workout Management & Challenge Actions**:
    - Dedicated tabs for **Today's Plan** and **Saved Workouts**.
-   - **Mark as Done** toggle (Challenge C3) with completion styling (green highlights, strike-through, and celebration toast).
+   - **Mark as Done** toggle (Challenge C3) with completion styling (green highlights, strike-through, and finished badge) and toast.
    - **Remove (X)** button with instantaneous plan adjustment and toast notice.
    - Moving saved workouts directly into Today's Plan with one click.
    - Clean, friendly empty state with direct navigation back to the library.
 
 5. **Sorting, Search & Filtering (Challenge C1 & Extras)**:
    - **Sort By Dropdown**: Re-sorts the library on the fly by **Duration**, **Calories Burned**, or **Rating** (default: Duration).
-   - **Live Search Bar**: Instantly filter lifts by exercise name, target muscle group, or equipment.
-   - **Muscle Group Filter Chips**: Quick one-click category filtering for Chest, Arms, Back, Legs, Core, and Shoulders.
+   - **Live Search Bar**: Instantly filter lifts by exercise name, target muscle group, or equipment across both Library and My Plan.
 
 6. **Local Persistence & Limit Protection**:
    - Preserves planned workouts, saved items, and completed states in `localStorage`, so your plan survives page reloads and refreshes.
@@ -72,34 +71,34 @@
 Follow these steps to run the project on your local machine:
 
 ### 1. Clone the repository
-\`\`\`bash
-git clone <your-repo-url>
-cd asmnt6
-\`\`\`
+```bash
+git clone https://github.com/TalhaTamim45/B14-A6-Fit-Log.git
+cd B14-A6-Fit-Log
+```
 
 ### 2. Install dependencies
-\`\`\`bash
+```bash
 npm install
-\`\`\`
+```
 
 ### 3. Run the development server
-\`\`\`bash
+```bash
 npm run dev
-\`\`\`
+```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 ### 4. Build for production
-\`\`\`bash
+```bash
 npm run build
 npm start
-\`\`\`
+```
 
 ---
 
 ## 📁 Project Structure
 
-\`\`\`
+```
 asmnt6/
 ├── app/
 │   ├── globals.css          # Theme styles, color tokens & custom scrollbar
@@ -121,7 +120,7 @@ asmnt6/
 │   └── PlanContext.jsx      # Global React Context with localStorage sync
 ├── next.config.mjs          # Remote image domains configuration
 └── README.md                # Project documentation
-\`\`\`
+```
 
 ---
 
@@ -129,5 +128,5 @@ asmnt6/
 
 - **Course**: Programming Hero Web Development (Batch 14)
 - **Assignment**: Milestone 9/10 — Assignment 6 (FitLog)
-- **Author**: Student Submission
+- **Author**: TalhaTamim45
 - **License**: MIT
