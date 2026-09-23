@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { 
   Dumbbell, 
@@ -14,7 +14,8 @@ import {
   Bookmark, 
   Check, 
   Eye, 
-  Plus
+  Plus,
+  Search
 } from 'lucide-react';
 import { usePlan } from '@/context/PlanContext';
 
@@ -34,8 +35,23 @@ export default function MyPlanPage() {
   // Active tab state: "today" for Today's Plan, "saved" for Saved
   const [activeTab, setActiveTab] = useState('today');
 
-  // Currently displayed workout list based on the active tab
-  const activeList = activeTab === 'today' ? todayPlan : savedWorkouts;
+  // Search filter for My Plan entries
+  const [planSearch, setPlanSearch] = useState('');
+
+  // Selected list based on tab
+  const rawList = activeTab === 'today' ? todayPlan : savedWorkouts;
+
+  // Filter list by search query if typed
+  const activeList = useMemo(() => {
+    if (!planSearch.trim()) return rawList;
+    const q = planSearch.toLowerCase();
+    return rawList.filter((item) => {
+      const nameMatch = item.name?.toLowerCase().includes(q);
+      const tagMatch = Array.isArray(item.muscleGroups) && item.muscleGroups.some((m) => m.toLowerCase().includes(q));
+      const equipMatch = item.equipment?.toLowerCase().includes(q);
+      return nameMatch || tagMatch || equipMatch;
+    });
+  }, [rawList, planSearch]);
 
   return (
     <div className="py-10 md:py-16 bg-[#0d0f12] text-white min-h-[calc(100vh-140px)]">
@@ -101,42 +117,59 @@ export default function MyPlanPage() {
 
         </div>
 
-        {/* TABS: Today's Plan / Saved (active tab highlighted) */}
-        <div className="flex items-center gap-3 border-b border-[#232733] pb-4">
+        {/* TABS & SEARCH ROW */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#232733] pb-4">
           
-          <button
-            onClick={() => setActiveTab('today')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
-              activeTab === 'today'
-                ? 'bg-[#ccff00] text-black shadow-md'
-                : 'bg-[#15181f] text-zinc-400 hover:text-white border border-[#232733]'
-            }`}
-          >
-            <Calendar className="w-4 h-4 stroke-[2.5]" />
-            <span>Today&apos;s Plan</span>
-            <span className={`px-2 py-0.5 rounded-full text-[11px] font-black ${
-              activeTab === 'today' ? 'bg-black text-[#ccff00]' : 'bg-zinc-800 text-zinc-300'
-            }`}>
-              {isLoaded ? todayPlan.length : 0}
-            </span>
-          </button>
+          {/* Tabs: Today's Plan / Saved */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setActiveTab('today')}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+                activeTab === 'today'
+                  ? 'bg-[#ccff00] text-black shadow-md'
+                  : 'bg-[#15181f] text-zinc-400 hover:text-white border border-[#232733]'
+              }`}
+            >
+              <Calendar className="w-4 h-4 stroke-[2.5]" />
+              <span>Today&apos;s Plan</span>
+              <span className={`px-2 py-0.5 rounded-full text-[11px] font-black ${
+                activeTab === 'today' ? 'bg-black text-[#ccff00]' : 'bg-zinc-800 text-zinc-300'
+              }`}>
+                {isLoaded ? todayPlan.length : 0}
+              </span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('saved')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
-              activeTab === 'saved'
-                ? 'bg-[#ccff00] text-black shadow-md'
-                : 'bg-[#15181f] text-zinc-400 hover:text-white border border-[#232733]'
-            }`}
-          >
-            <Bookmark className="w-4 h-4" />
-            <span>Saved</span>
-            <span className={`px-2 py-0.5 rounded-full text-[11px] font-black ${
-              activeTab === 'saved' ? 'bg-black text-[#ccff00]' : 'bg-zinc-800 text-zinc-300'
-            }`}>
-              {isLoaded ? savedWorkouts.length : 0}
-            </span>
-          </button>
+            <button
+              onClick={() => setActiveTab('saved')}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+                activeTab === 'saved'
+                  ? 'bg-[#ccff00] text-black shadow-md'
+                  : 'bg-[#15181f] text-zinc-400 hover:text-white border border-[#232733]'
+              }`}
+            >
+              <Bookmark className="w-4 h-4" />
+              <span>Saved</span>
+              <span className={`px-2 py-0.5 rounded-full text-[11px] font-black ${
+                activeTab === 'saved' ? 'bg-black text-[#ccff00]' : 'bg-zinc-800 text-zinc-300'
+              }`}>
+                {isLoaded ? savedWorkouts.length : 0}
+              </span>
+            </button>
+          </div>
+
+          {/* Search My Plan Entries (Optional Feature) */}
+          {rawList.length > 0 && (
+            <div className="relative min-w-[200px]">
+              <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Filter entries..."
+                value={planSearch}
+                onChange={(e) => setPlanSearch(e.target.value)}
+                className="w-full pl-9 pr-3 py-1.5 bg-[#15181f] border border-[#232733] focus:border-[#ccff00] rounded-lg text-xs text-white placeholder-zinc-500 outline-none transition"
+              />
+            </div>
+          )}
 
         </div>
 
@@ -151,7 +184,7 @@ export default function MyPlanPage() {
         )}
 
         {/* EMPTY STATE (when the list is empty) */}
-        {isLoaded && activeList.length === 0 && (
+        {isLoaded && rawList.length === 0 && (
           <div className="py-20 px-4 rounded-3xl bg-[#15181f] border border-[#232733] text-center space-y-4 max-w-lg mx-auto">
             <div className="w-16 h-16 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center mx-auto text-[#ccff00]">
               <Dumbbell className="w-8 h-8 stroke-[2]" />

@@ -3,115 +3,114 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 
-// Create the context for Workout Plan and Saved Workouts
+// Create Context for managing workout plans and saved items globally
 const PlanContext = createContext();
 
 export function PlanProvider({ children }) {
-  // State for Today's Plan (max 5 lifts)
+  // State for Today's Plan list (maximum 5 lifts)
   const [todayPlan, setTodayPlan] = useState([]);
 
-  // State for Saved Workouts (Save for later)
+  // State for Saved for later list
   const [savedWorkouts, setSavedWorkouts] = useState([]);
 
-  // State for completed workout IDs (Mark as Done)
+  // State for tracking completed workouts (Mark as Done)
   const [completedWorkouts, setCompletedWorkouts] = useState([]);
 
-  // Loading state to ensure localStorage data is loaded before rendering
+  // Loading flag to wait for localStorage data on client
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load saved data from localStorage when the app loads in the browser
+  // Load saved data from localStorage on first mount
   useEffect(() => {
     try {
-      const savedPlan = localStorage.getItem('fitlog_today_plan');
-      const savedList = localStorage.getItem('fitlog_saved_workouts');
-      const savedDone = localStorage.getItem('fitlog_completed_workouts');
+      const storedPlan = localStorage.getItem('fitlog_today_plan');
+      const storedSaved = localStorage.getItem('fitlog_saved_workouts');
+      const storedDone = localStorage.getItem('fitlog_completed_workouts');
 
-      if (savedPlan) setTodayPlan(JSON.parse(savedPlan));
-      if (savedList) setSavedWorkouts(JSON.parse(savedList));
-      if (savedDone) setCompletedWorkouts(JSON.parse(savedDone));
-    } catch (error) {
-      console.error('Error loading data from localStorage:', error);
+      if (storedPlan) setTodayPlan(JSON.parse(storedPlan));
+      if (storedSaved) setSavedWorkouts(JSON.parse(storedSaved));
+      if (storedDone) setCompletedWorkouts(JSON.parse(storedDone));
+    } catch (err) {
+      console.error('Error reading from localStorage:', err);
     } finally {
       setIsLoaded(true);
     }
   }, []);
 
-  // Save today's plan to localStorage whenever it changes
+  // Save Today's Plan to localStorage when updated
   useEffect(() => {
     if (isLoaded) {
       localStorage.setItem('fitlog_today_plan', JSON.stringify(todayPlan));
     }
   }, [todayPlan, isLoaded]);
 
-  // Save saved workouts to localStorage whenever it changes
+  // Save Saved Workouts to localStorage when updated
   useEffect(() => {
     if (isLoaded) {
       localStorage.setItem('fitlog_saved_workouts', JSON.stringify(savedWorkouts));
     }
   }, [savedWorkouts, isLoaded]);
 
-  // Save completed workouts to localStorage whenever it changes
+  // Save Completed Workouts to localStorage when updated
   useEffect(() => {
     if (isLoaded) {
       localStorage.setItem('fitlog_completed_workouts', JSON.stringify(completedWorkouts));
     }
   }, [completedWorkouts, isLoaded]);
 
-  // 1. Add workout to Today's Plan
+  // 1. Add to Today's Plan
   const addToTodayPlan = (workout) => {
-    // Check if workout is already in today's plan
-    const alreadyExists = todayPlan.some((item) => item.id === workout.id);
-    if (alreadyExists) {
-      toast.error('Already added to today\'s plan!');
+    // Check if workout is already in Today's Plan
+    const isAlreadyInPlan = todayPlan.some((item) => item.id === workout.id);
+    if (isAlreadyInPlan) {
+      toast.error("Already added to today's plan");
       return false;
     }
 
-    // Check 5-lift cap requirement
+    // Check plan cap (limit of 5 lifts)
     if (todayPlan.length >= 5) {
       toast.error('Plan limit reached! Maximum 5 lifts for today.');
       return false;
     }
 
     setTodayPlan((prev) => [...prev, workout]);
-    toast.success('Added to today\'s plan! 🏋️');
+    toast.success("Added to today's plan");
     return true;
   };
 
-  // 2. Remove workout from Today's Plan
+  // 2. Remove from Today's Plan
   const removeFromTodayPlan = (id) => {
     setTodayPlan((prev) => prev.filter((item) => item.id !== id));
-    // Also remove from completed if it was marked done
     setCompletedWorkouts((prev) => prev.filter((cId) => cId !== id));
-    toast.success('Removed from today\'s plan');
+    toast.success("Removed from today's plan");
   };
 
-  // 3. Add workout to Saved for later
+  // 3. Add to Saved for later
   const addToSaved = (workout) => {
-    const alreadyExists = savedWorkouts.some((item) => item.id === workout.id);
-    if (alreadyExists) {
-      toast.error('Already in your saved list!');
+    const isAlreadySaved = savedWorkouts.some((item) => item.id === workout.id);
+    if (isAlreadySaved) {
+      toast.error('Already in your saved list');
       return false;
     }
 
     setSavedWorkouts((prev) => [...prev, workout]);
-    toast.success('Saved for later! 📌');
+    toast.success('Saved for later');
     return true;
   };
 
-  // 4. Remove workout from Saved list
+  // 4. Remove from Saved list
   const removeFromSaved = (id) => {
     setSavedWorkouts((prev) => prev.filter((item) => item.id !== id));
     toast.success('Removed from saved list');
   };
 
-  // 5. Toggle "Mark as Done" for a workout
+  // 5. Toggle Mark as Done (Challenge C3)
   const toggleMarkAsDone = (id) => {
     if (completedWorkouts.includes(id)) {
       setCompletedWorkouts((prev) => prev.filter((cId) => cId !== id));
-      toast('Workout marked as incomplete', { icon: 'ℹ️' });
+      toast('Marked as incomplete', { icon: 'ℹ️' });
     } else {
       setCompletedWorkouts((prev) => [...prev, id]);
-      toast.success('Workout marked as done! Great job! 🎉');
+      toast.success('Marked as done');
     }
   };
 
@@ -120,10 +119,10 @@ export function PlanProvider({ children }) {
   const isInPlan = (id) => todayPlan.some((item) => item.id === id);
   const isSaved = (id) => savedWorkouts.some((item) => item.id === id);
 
-  // Live Metrics Summary calculation for Today's Plan
-  const totalExercises = todayPlan.length;
-  const totalMinutes = todayPlan.reduce((sum, item) => sum + (Number(item.duration) || 0), 0);
-  const totalCalories = todayPlan.reduce((sum, item) => sum + (Number(item.caloriesBurned) || 0), 0);
+  // Metrics summary calculation for Today's Plan: Exercises, Minutes, Calories
+  const exercisesCount = todayPlan.length;
+  const totalMinutes = todayPlan.reduce((acc, curr) => acc + (Number(curr.duration) || 0), 0);
+  const totalCalories = todayPlan.reduce((acc, curr) => acc + (Number(curr.caloriesBurned) || 0), 0);
 
   return (
     <PlanContext.Provider
@@ -141,7 +140,7 @@ export function PlanProvider({ children }) {
         isInPlan,
         isSaved,
         metrics: {
-          exercises: totalExercises,
+          exercises: exercisesCount,
           minutes: totalMinutes,
           calories: totalCalories,
         },
@@ -152,7 +151,7 @@ export function PlanProvider({ children }) {
   );
 }
 
-// Custom hook to easily use the PlanContext in any component
+// Hook to access the context easily
 export function usePlan() {
   const context = useContext(PlanContext);
   if (!context) {
