@@ -216,7 +216,7 @@ export default function WorkoutDetailPage({ params }) {
                 {inPlan ? (
                   <>
                     <Check className="w-4 h-4 stroke-[3]" />
-                    <span>Added to plan</span>
+                    <span>Added to today&apos;s plan</span>
                   </>
                 ) : planIsFull ? (
                   <span>Plan Full (5 Max)</span>
